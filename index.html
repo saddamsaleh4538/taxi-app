@@ -1,331 +1,194 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تاكسي الإمبراطور - VIP</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- استدعاء خط عربي فخم -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gold: #d4af37;
-            --gold-light: #f3e5ab;
-            --dark-bg: #0a0a0a;
-            --card-bg: #1a1a1a;
-            --text-light: #ffffff;
-            --text-gray: #aaaaaa;
-        }
+.features{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-top:30px;
+}
 
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--dark-bg );
-            color: var(--text-light);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            background-image: radial-gradient(circle at top, #1f1a0d 0%, var(--dark-bg) 40%);
-        }
+.feature{
+background:#101010;
+padding:20px;
+border-radius:22px;
+border:1px solid #ffffff10;
+text-align:center;
+}
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+.feature h4{
+color:#ffd700;
+margin-bottom:10px;
+font-size:18px;
+}
 
-        /* Header Section */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            color: var(--gold);
-            font-size: 2.5em;
-            margin: 0;
-            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
-        }
-        .header p {
-            color: var(--gold-light);
-            margin: 5px 0;
-            font-size: 1.1em;
-        }
+/* BUTTON */
 
-        /* Features Row */
-        .features {
-            display: flex;
-            justify-content: space-between;
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            margin-bottom: 20px;
-        }
-        .feature-item {
-            text-align: center;
-            font-size: 0.8em;
-            color: var(--text-gray);
-        }
-        .feature-item span {
-            display: block;
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
+.order-btn{
+margin-top:35px;
+width:100%;
+padding:24px;
+border:none;
+border-radius:25px;
+background:
+linear-gradient(180deg,#ffd700,#c28c00);
+font-size:30px;
+font-weight:900;
+color:#111;
+cursor:pointer;
+box-shadow:
+0 0 25px #ffd70088,
+0 15px 30px #000;
+transition:.3s;
+}
 
-        /* Location Box */
-        .location-box {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .location-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        .loc-btn {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-family: 'Tajawal', sans-serif;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-        .loc-btn:hover, .loc-btn.active {
-            background: var(--gold);
-            color: var(--dark-bg);
-        }
+.order-btn:hover{
+transform:scale(1.02);
+}
 
-        .input-group {
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .input-group input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #333;
-            color: white;
-            padding: 10px 0;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 1em;
-            outline: none;
-        }
-        .input-group input:focus {
-            border-bottom-color: var(--gold);
-        }
-        .input-group label {
-            color: var(--text-gray);
-            font-size: 0.8em;
-            display: block;
-            margin-bottom: 5px;
-        }
+.footer{
+text-align:center;
+margin-top:20px;
+color:#999;
+font-size:14px;
+}
 
-        /* Car Selection */
-        .section-title {
-            text-align: center;
-            color: var(--gold);
-            margin: 20px 0 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .section-title::before, .section-title::after {
-            content: "";
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--gold), transparent);
-            flex: 1;
-            margin: 0 10px;
-        }
-
-        .car-selection {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .car-card {
-            flex: 1;
-            background-color: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 15px 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .car-card.active {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-            transform: translateY(-2px);
-        }
-        .car-card img {
-            width: 80%;
-            height: 40px;
-            object-fit: contain;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
-        }
-        .car-card h3 {
-            margin: 0;
-            font-size: 0.9em;
-            color: var(--gold-light);
-        }
-        .car-card p {
-            margin: 5px 0 0;
-            font-size: 0.7em;
-            color: var(--text-gray);
-        }
-
-        /* Submit Button */
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(45deg, #b8860b, #ffd700, #b8860b);
-            color: #000;
-            border: none;
-            padding: 15px;
-            border-radius: 25px;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-        }
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Hidden inputs */
-        .hidden { display: none; }
-    </style>
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>التاكسي الذكي</h1>
-            <p>خدمة راقية.. تستحقها</p>
-        </div>
 
-        <div class="features">
-            <div class="feature-item"><span>🛡️</span>أمان تام</div>
-            <div class="feature-item"><span>⏱️</span>سرعة استجابة</div>
-            <div class="feature-item"><span>⭐</span>سائقون مميزون</div>
-            <div class="feature-item"><span>🎧</span>دعم 24/7</div>
-        </div>
+<div class="container">
 
-        <form id="tripRequestForm">
-            <div class="location-box">
-                <div class="location-buttons">
-                    <button type="button" class="loc-btn" id="getLocationBtn">📍 موقعي الحالي</button>
-                    <button type="button" class="loc-btn">🗺️ تحديد على الخريطة</button>
-                </div>
+<div class="topbar">
+<div class="circle-btn">☰</div>
+<div class="circle-btn">🔔</div>
+</div>
 
-                <div class="input-group">
-                    <label>من أين ننطلق؟</label>
-                    <input type="text" id="fromLocation" placeholder="اختر موقع الانطلاق" required>
-                    <input type="hidden" id="fromLat">
-                    <input type="hidden" id="fromLon">
-                </div>
+<div class="hero">
 
-                <div class="input-group">
-                    <label>إلى أين وجهتك؟</label>
-                    <input type="text" id="toLocation" placeholder="اختر وجهتك" required>
-                </div>
-            </div>
+<div class="logo3d">
+التاكسي الذكي
+</div>
 
-            <div class="section-title">اختر نوع رحلتك</div>
-            
-            <div class="car-selection">
-                <div class="car-card" onclick="selectCar('trip_urgent', this)">
-                    <h3 style="color: white;">Standard</h3>
-                    <p>اقتصادي</p>
-                </div>
-                <div class="car-card active" onclick="selectCar('trip_vip', this)">
-                    <h3>👑 VIP</h3>
-                    <p>راحة فاخرة</p>
-                </div>
-                <div class="car-card" onclick="selectCar('trip_van', this)">
-                    <h3 style="color: white;">Van</h3>
-                    <p>حتى 7 ركاب</p>
-                </div>
-            </div>
-            <input type="hidden" id="tripType" value="trip_vip">
+<div class="subtitle">
+خدمة راقية • تستحقها
+</div>
 
-            <button type="submit" class="submit-btn">❯ ابدأ رحلتك الآن</button>
-        </form>
-    </div>
+<div class="welcome">
+أهلاً بك في <span>رحلتك الفاخرة</span>
+</div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+<div class="desc">
+تجربة نقل ذكية داخل تيليجرام بسرعة وأمان وراحة لا تضاهى.
+</div>
 
-        // Car selection logic
-        function selectCar(type, element) {
-            document.getElementById('tripType').value = type;
-            document.querySelectorAll('.car-card').forEach(card => card.classList.remove('active'));
-            element.classList.add('active');
-        }
+<div class="stats">
 
-        // Location logic
-        const getLocationBtn = document.getElementById('getLocationBtn');
-        const fromLocationInput = document.getElementById('fromLocation');
-        const fromLatInput = document.getElementById('fromLat');
-        const fromLonInput = document.getElementById('fromLon');
+<div class="stat">
+⭐
+<h3>سائقون مميزون</h3>
+<p>أصحاب خبرة</p>
+</div>
 
-        getLocationBtn.addEventListener('click', function() {
-            this.classList.add('active');
-            this.textContent = '⏳ جاري التحديد...';
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    fromLatInput.value = position.coords.latitude;
-                    fromLonInput.value = position.coords.longitude;
-                    fromLocationInput.value = `موقعي الحالي (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`;
-                    getLocationBtn.textContent = '✅ تم التحديد';
-                }, function(error) {
-                    getLocationBtn.textContent = '❌ فشل التحديد';
-                    getLocationBtn.classList.remove('active');
-                    tg.showPopup({title: 'خطأ', message: 'تعذر الحصول على موقعك. يرجى إدخاله يدوياً.'});
-                });
-            }
-        });
+<div class="stat">
+⚡
+<h3>سرعة استجابة</h3>
+<p>خلال دقائق</p>
+</div>
 
-        // Submit logic
-        document.getElementById('tripRequestForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const fromLocation = fromLocationInput.value.trim();
-            const toLocation = document.getElementById('toLocation').value.trim();
-            
-            if (!fromLocation || !toLocation) {
-                tg.showPopup({title: 'تنبيه', message: 'الرجاء تحديد نقطة الانطلاق والوجهة.'});
-                return;
-            }
+<div class="stat">
+🛡️
+<h3>أمان عالي</h3>
+<p>رحلات موثوقة</p>
+</div>
 
-            const data = {
-                action: 'request_trip',
-                trip_type: document.getElementById('tripType').value,
-                from_location_text: fromLocation,
-                from_latitude: fromLatInput.value || null,
-                from_longitude: fromLonInput.value || null,
-                to_location_text: toLocation,
-                details: "طلب من واجهة VIP"
-            };
+<div class="stat">
+📍
+<h3>تتبع مباشر</h3>
+<p>لحظة بلحظة</p>
+</div>
 
-            tg.sendData(JSON.stringify(data));
-            tg.close();
-        });
-    </script>
+</div>
+
+<div class="map-box">
+
+<div class="map"></div>
+
+<button class="loc-btn">
+📍 تحديد موقعي الحالي
+</button>
+
+<div class="input-box">
+<div class="label">نقطة الانطلاق</div>
+<input class="input" placeholder="اختر موقع الانطلاق">
+</div>
+
+<div class="input-box">
+<div class="label">الوجهة</div>
+<input class="input" placeholder="اختر وجهتك">
+</div>
+
+</div>
+
+<div class="cars">
+
+<div class="car">
+<img src="https://cdn-icons-png.flaticon.com/512/744/744465.png">
+<h3>Van</h3>
+<p>حتى 7 ركاب</p>
+</div>
+
+<div class="car active">
+<img src="https://cdn-icons-png.flaticon.com/512/3202/3202926.png">
+<h3>VIP</h3>
+<p>راحة وفخامة</p>
+</div>
+
+<div class="car">
+<img src="https://cdn-icons-png.flaticon.com/512/741/741407.png">
+<h3>Standard</h3>
+<p>اقتصادي</p>
+</div>
+
+</div>
+
+<div class="features">
+
+<div class="feature">
+💰
+<h4>أسعار شفافة</h4>
+<p>بدون رسوم مخفية</p>
+</div>
+
+<div class="feature">
+🎁
+<h4>عروض حصرية</h4>
+<p>خصومات مستمرة</p>
+</div>
+
+<div class="feature">
+⭐
+<h4>تقييم السائق</h4>
+<p>جودة عالية</p>
+</div>
+
+<div class="feature">
+📞
+<h4>دعم 24/7</h4>
+<p>متواجد دائمًا</p>
+</div>
+
+</div>
+
+<button class="order-btn">
+ابدأ رحلتك الآن
+</button>
+
+<div class="footer">
+خدمة ذكية مصممة لتجربة نقل حديثة داخل تيليجرام
+</div>
+
+</div>
+
+</div>
+
 </body>
 </html>

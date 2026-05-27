@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اطلب رحلة - تاكسي الإمبراطور</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--tg-theme-bg-color, #f0f2f5);
+            color: var(--tg-theme-text-color, #333);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: var(--tg-theme-secondary-bg-color, #fff);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: var(--tg-theme-text-color, #2c3e50);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--tg-theme-hint-color, #555);
+        }
+        input[type="text"],
+        textarea,
+        select {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid var(--tg-theme-hint-color, #ccc);
+            border-radius: 8px;
+            font-size: 1em;
+            background-color: var(--tg-theme-field-bg-color, #fdfdfd);
+            color: var(--tg-theme-text-color, #333);
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--tg-theme-button-color, #007bff);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .button-group button {
+            flex: 1 1 auto;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            background-color: var(--tg-theme-button-color, #007bff);
+            color: var(--tg-theme-button-text-color, #fff);
+        }
+        .button-group button:hover {
+            opacity: 0.9;
+        }
+        .button-group button.secondary {
+            background-color: var(--tg-theme-secondary-button-color, #6c757d);
+        }
+        .button-group button.secondary:hover {
+            opacity: 0.9;
+        }
+        .location-button {
+            background-color: #28a745;
+            color: white;
+            margin-top: 10px;
+        }
+        .location-button:hover {
+            background-color: #218838;
+        }
+        .hidden {
+            display: none;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .success-message {
+            color: #28a745;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>اطلب رحلة جديدة</h1>
+        <form id="tripRequestForm">
+            <div class="form-group">
+                <label for="tripType">نوع الطلب:</label>
+                <select id="tripType" name="tripType">
+                    <option value="trip_urgent">🚕 مشوار يومي</option>
+                    <option value="trip_weekly">🔁 رحلة أسبوعية</option>
+                    <option value="trip_monthly">📅 التزام شهري</option>
+                    <option value="srv_food">🍽️ طلب طعام</option>
+                    <option value="srv_pharmacy">💊 صيدلية</option>
+                    <option value="srv_realestate">🏠 عقارات</option>
+                    <option value="srv_furniture">🪑 أثاث (تبرع/بيع)</option>
+                    <option value="srv_tutor">🎓 مدرس خصوصي</option>
+                    <option value="srv_jobs">💼 وظائف</option>
+                    <option value="srv_general">🧹 خدمات عامة</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fromLocation">نقطة الانطلاق:</label>
+                <input type="text" id="fromLocation" name="fromLocation" placeholder="ادخل نقطة الانطلاق أو شارك موقعك" required>
+                <button type="button" id="getLocationBtn" class="location-button">📍 مشاركة موقعي الحالي</button>
+                <input type="hidden" id="fromLat" name="fromLat">
+                <input type="hidden" id="fromLon" name="fromLon">
+            </div>
+
+            <div class="form-group">
+                <label for="toLocation">الوجهة:</label>
+                <input type="text" id="toLocation" name="toLocation" placeholder="ادخل الوجهة" required>
+            </div>
+
+            <div class="form-group" id="detailsGroup">
+                <label for="details">تفاصيل إضافية (اختياري):</label>
+                <textarea id="details" name="details" placeholder="مثال: عدد الركاب، تفاصيل خاصة بالخدمة، وقت محدد للرحلة..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">✅ تأكيد الطلب</button>
+                <button type="button" id="cancelBtn" class="secondary">❌ إلغاء</button>
+            </div>
+            <p id="errorMessage" class="error-message hidden"></p>
+            <p id="successMessage" class="success-message hidden"></p>
+        </form>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // Apply Telegram theme colors
+        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
+        document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
+        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
+        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color);
+        document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color);
+        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
+        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
+        document.documentElement.style.setProperty('--tg-theme-secondary-button-color', tg.themeParams.secondary_button_color || '#6c757d');
+        document.documentElement.style.setProperty('--tg-theme-field-bg-color', tg.themeParams.field_bg_color || '#fdfdfd');
+
+        const form = document.getElementById('tripRequestForm');
+        const fromLocationInput = document.getElementById('fromLocation');
+        const toLocationInput = document.getElementById('toLocation');
+        const detailsGroup = document.getElementById('detailsGroup');
+        const tripTypeSelect = document.getElementById('tripType');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const fromLatInput = document.getElementById('fromLat');
+        const fromLonInput = document.getElementById('fromLon');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        // Show/hide details based on trip type
+        tripTypeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            if (selectedType.startsWith('srv_')) {
+                detailsGroup.style.display = 'block';
+                toLocationInput.removeAttribute('required'); // Services might not need a 'to' location
+            } else {
+                detailsGroup.style.display = 'block'; // Keep details for all trip types for now
+                toLocationInput.setAttribute('required', 'required');
+            }
+        });
+
+        getLocationBtn.addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    fromLatInput.value = position.coords.latitude;
+                    fromLonInput.value = position.coords.longitude;
+                    fromLocationInput.value = `موقعي الحالي (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`;
+                    fromLocationInput.readOnly = true; // Prevent manual editing after getting location
+                    tg.showPopup({
+                        title: 'تم تحديد الموقع',
+                        message: 'تم الحصول على موقعك الحالي بنجاح.',
+                        buttons: [{id: 'ok', type: 'ok'}]
+                    });
+                }, function(error) {
+                    console.error("Error getting location: ", error);
+                    errorMessage.textContent = '❌ تعذر الحصول على الموقع. يرجى إدخاله يدوياً.';
+                    errorMessage.classList.remove('hidden');
+                    tg.showPopup({
+                        title: 'خطأ في الموقع',
+                        message: 'تعذر الحصول على موقعك الحالي. يرجى التأكد من تفعيل خدمات الموقع وإعادة المحاولة، أو إدخال الموقع يدوياً.',
+                        buttons: [{id: 'ok', type: 'ok'}]
+                    });
+                });
+            } else {
+                errorMessage.textContent = '❌ متصفحك لا يدعم تحديد الموقع الجغرافي.';
+                errorMessage.classList.remove('hidden');
+                tg.showPopup({
+                    title: 'خطأ في المتصفح',
+                    message: 'متصفحك لا يدعم تحديد الموقع الجغرافي. يرجى إدخال الموقع يدوياً.',
+                    buttons: [{id: 'ok', type: 'ok'}]
+                });
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+
+            const tripType = tripTypeSelect.value;
+            const fromLocation = fromLocationInput.value.trim();
+            const toLocation = toLocationInput.value.trim();
+            const details = document.getElementById('details').value.trim();
+            const fromLat = fromLatInput.value;
+            const fromLon = fromLonInput.value;
+
+            if (!fromLocation || (!toLocation && !tripType.startsWith('srv_'))) {
+                errorMessage.textContent = 'الرجاء تعبئة جميع الحقول المطلوبة.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            const data = {
+                action: 'request_trip',
+                trip_type: tripType,
+                from_location_text: fromLocation,
+                from_latitude: fromLat || null,
+                from_longitude: fromLon || null,
+                to_location_text: toLocation,
+                details: details
+            };
+
+            tg.sendData(JSON.stringify(data));
+            tg.MainButton.hide();
+            successMessage.textContent = '✅ تم إرسال طلبك بنجاح! يرجى العودة للبوت.';
+            successMessage.classList.remove('hidden');
+            form.reset();
+            fromLocationInput.readOnly = false; // Reset readOnly state
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            tg.close();
+        });
+
+        // Handle MainButton visibility and text
+        tg.onEvent('mainButtonClicked', function() {
+            form.dispatchEvent(new Event('submit'));
+        });
+
+        function updateMainButton() {
+            if (fromLocationInput.value.trim() && (toLocationInput.value.trim() || tripTypeSelect.value.startsWith('srv_'))) {
+                tg.MainButton.setText('✅ تأكيد الطلب');
+                tg.MainButton.show();
+                tg.MainButton.enable();
+            } else {
+                tg.MainButton.hide();
+            }
+        }
+
+        fromLocationInput.addEventListener('input', updateMainButton);
+        toLocationInput.addEventListener('input', updateMainButton);
+        tripTypeSelect.addEventListener('change', updateMainButton);
+
+        // Initial check for MainButton
+        updateMainButton();
+
+    </script>
+</body>
+</html>

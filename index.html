@@ -1,331 +1,162 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تاكسي الإمبراطور - VIP</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- استدعاء خط عربي فخم -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gold: #d4af37;
-            --gold-light: #f3e5ab;
-            --dark-bg: #0a0a0a;
-            --card-bg: #1a1a1a;
-            --text-light: #ffffff;
-            --text-gray: #aaaaaa;
-        }
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
 
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--dark-bg );
-            color: var(--text-light);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            background-image: radial-gradient(circle at top, #1f1a0d 0%, var(--dark-bg) 40%);
-        }
+// Apply Telegram theme colors
+document.documentElement.style.setProperty("--tg-theme-bg-color", tg.themeParams.bg_color);
+document.documentElement.style.setProperty(
+  "--tg-theme-secondary-bg-color",
+  tg.themeParams.secondary_bg_color
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-text-color",
+  tg.themeParams.text_color
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-hint-color",
+  tg.themeParams.hint_color
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-link-color",
+  tg.themeParams.link_color
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-button-color",
+  tg.themeParams.button_color
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-button-text-color",
+  tg.themeParams.button_text_color
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-secondary-button-color",
+  tg.themeParams.secondary_button_color || "#6c757d"
+);
+document.documentElement.style.setProperty(
+  "--tg-theme-field-bg-color",
+  tg.themeParams.field_bg_color || "#fdfdfd"
+);
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+const form = document.getElementById("tripRequestForm");
+const fromLocationInput = document.getElementById("fromLocation");
+const toLocationInput = document.getElementById("toLocation");
+const detailsGroup = document.getElementById("detailsGroup");
+const tripTypeSelect = document.getElementById("tripType");
+const getLocationBtn = document.getElementById("getLocationBtn");
+const fromLatInput = document.getElementById("fromLat");
+const fromLonInput = document.getElementById("fromLon");
+const errorMessage = document.getElementById("errorMessage");
+const successMessage = document.getElementById("successMessage");
 
-        /* Header Section */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            color: var(--gold);
-            font-size: 2.5em;
-            margin: 0;
-            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
-        }
-        .header p {
-            color: var(--gold-light);
-            margin: 5px 0;
-            font-size: 1.1em;
-        }
+// Show/hide details based on trip type
+tripTypeSelect.addEventListener("change", function () {
+  const selectedType = this.value;
+  if (selectedType.startsWith("srv_")) {
+    detailsGroup.style.display = "block";
+    toLocationInput.removeAttribute("required"); // Services might not need a 'to' location
+  } else {
+    detailsGroup.style.display = "block"; // Keep details for all trip types for now
+    toLocationInput.setAttribute("required", "required");
+  }
+});
 
-        /* Features Row */
-        .features {
-            display: flex;
-            justify-content: space-between;
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            margin-bottom: 20px;
-        }
-        .feature-item {
-            text-align: center;
-            font-size: 0.8em;
-            color: var(--text-gray);
-        }
-        .feature-item span {
-            display: block;
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
-
-        /* Location Box */
-        .location-box {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .location-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        .loc-btn {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-family: 'Tajawal', sans-serif;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-        .loc-btn:hover, .loc-btn.active {
-            background: var(--gold);
-            color: var(--dark-bg);
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .input-group input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #333;
-            color: white;
-            padding: 10px 0;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 1em;
-            outline: none;
-        }
-        .input-group input:focus {
-            border-bottom-color: var(--gold);
-        }
-        .input-group label {
-            color: var(--text-gray);
-            font-size: 0.8em;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        /* Car Selection */
-        .section-title {
-            text-align: center;
-            color: var(--gold);
-            margin: 20px 0 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .section-title::before, .section-title::after {
-            content: "";
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--gold), transparent);
-            flex: 1;
-            margin: 0 10px;
-        }
-
-        .car-selection {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .car-card {
-            flex: 1;
-            background-color: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 15px 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .car-card.active {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-            transform: translateY(-2px);
-        }
-        .car-card img {
-            width: 80%;
-            height: 40px;
-            object-fit: contain;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
-        }
-        .car-card h3 {
-            margin: 0;
-            font-size: 0.9em;
-            color: var(--gold-light);
-        }
-        .car-card p {
-            margin: 5px 0 0;
-            font-size: 0.7em;
-            color: var(--text-gray);
-        }
-
-        /* Submit Button */
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(45deg, #b8860b, #ffd700, #b8860b);
-            color: #000;
-            border: none;
-            padding: 15px;
-            border-radius: 25px;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-        }
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Hidden inputs */
-        .hidden { display: none; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>التاكسي الذكي</h1>
-            <p>خدمة راقية.. تستحقها</p>
-        </div>
-
-        <div class="features">
-            <div class="feature-item"><span>🛡️</span>أمان تام</div>
-            <div class="feature-item"><span>⏱️</span>سرعة استجابة</div>
-            <div class="feature-item"><span>⭐</span>سائقون مميزون</div>
-            <div class="feature-item"><span>🎧</span>دعم 24/7</div>
-        </div>
-
-        <form id="tripRequestForm">
-            <div class="location-box">
-                <div class="location-buttons">
-                    <button type="button" class="loc-btn" id="getLocationBtn">📍 موقعي الحالي</button>
-                    <button type="button" class="loc-btn">🗺️ تحديد على الخريطة</button>
-                </div>
-
-                <div class="input-group">
-                    <label>من أين ننطلق؟</label>
-                    <input type="text" id="fromLocation" placeholder="اختر موقع الانطلاق" required>
-                    <input type="hidden" id="fromLat">
-                    <input type="hidden" id="fromLon">
-                </div>
-
-                <div class="input-group">
-                    <label>إلى أين وجهتك؟</label>
-                    <input type="text" id="toLocation" placeholder="اختر وجهتك" required>
-                </div>
-            </div>
-
-            <div class="section-title">اختر نوع رحلتك</div>
-            
-            <div class="car-selection">
-                <div class="car-card" onclick="selectCar('trip_urgent', this)">
-                    <h3 style="color: white;">Standard</h3>
-                    <p>اقتصادي</p>
-                </div>
-                <div class="car-card active" onclick="selectCar('trip_vip', this)">
-                    <h3>👑 VIP</h3>
-                    <p>راحة فاخرة</p>
-                </div>
-                <div class="car-card" onclick="selectCar('trip_van', this)">
-                    <h3 style="color: white;">Van</h3>
-                    <p>حتى 7 ركاب</p>
-                </div>
-            </div>
-            <input type="hidden" id="tripType" value="trip_vip">
-
-            <button type="submit" class="submit-btn">❯ ابدأ رحلتك الآن</button>
-        </form>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-
-        // Car selection logic
-        function selectCar(type, element) {
-            document.getElementById('tripType').value = type;
-            document.querySelectorAll('.car-card').forEach(card => card.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        // Location logic
-        const getLocationBtn = document.getElementById('getLocationBtn');
-        const fromLocationInput = document.getElementById('fromLocation');
-        const fromLatInput = document.getElementById('fromLat');
-        const fromLonInput = document.getElementById('fromLon');
-
-        getLocationBtn.addEventListener('click', function() {
-            this.classList.add('active');
-            this.textContent = '⏳ جاري التحديد...';
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    fromLatInput.value = position.coords.latitude;
-                    fromLonInput.value = position.coords.longitude;
-                    fromLocationInput.value = `موقعي الحالي (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`;
-                    getLocationBtn.textContent = '✅ تم التحديد';
-                }, function(error) {
-                    getLocationBtn.textContent = '❌ فشل التحديد';
-                    getLocationBtn.classList.remove('active');
-                    tg.showPopup({title: 'خطأ', message: 'تعذر الحصول على موقعك. يرجى إدخاله يدوياً.'});
-                });
-            }
+getLocationBtn.addEventListener("click", function () {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        fromLatInput.value = position.coords.latitude;
+        fromLonInput.value = position.coords.longitude;
+        fromLocationInput.value = `موقعي الحالي (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`;
+        fromLocationInput.readOnly = true; // Prevent manual editing after getting location
+        tg.showPopup({
+          title: "تم تحديد الموقع",
+          message: "تم الحصول على موقعك الحالي بنجاح.",
+          buttons: [{ id: "ok", type: "ok" }],
         });
-
-        // Submit logic
-        document.getElementById('tripRequestForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const fromLocation = fromLocationInput.value.trim();
-            const toLocation = document.getElementById('toLocation').value.trim();
-            
-            if (!fromLocation || !toLocation) {
-                tg.showPopup({title: 'تنبيه', message: 'الرجاء تحديد نقطة الانطلاق والوجهة.'});
-                return;
-            }
-
-            const data = {
-                action: 'request_trip',
-                trip_type: document.getElementById('tripType').value,
-                from_location_text: fromLocation,
-                from_latitude: fromLatInput.value || null,
-                from_longitude: fromLonInput.value || null,
-                to_location_text: toLocation,
-                details: "طلب من واجهة VIP"
-            };
-
-            tg.sendData(JSON.stringify(data));
-            tg.close();
+      },
+      function (error) {
+        console.error("Error getting location: ", error);
+        errorMessage.textContent = "❌ تعذر الحصول على الموقع. يرجى إدخاله يدوياً.";
+        errorMessage.classList.remove("hidden");
+        tg.showPopup({
+          title: "خطأ في الموقع",
+          message: "تعذر الحصول على موقعك الحالي. يرجى التأكد من تفعيل خدمات الموقع وإعادة المحاولة، أو إدخال الموقع يدوياً.",
+          buttons: [{ id: "ok", type: "ok" }],
         });
-    </script>
-</body>
-</html>
+      }
+    );
+  } else {
+    errorMessage.textContent = "❌ متصفحك لا يدعم تحديد الموقع الجغرافي.";
+    errorMessage.classList.remove("hidden");
+    tg.showPopup({
+      title: "خطأ في المتصفح",
+      message: "متصفحك لا يدعم تحديد الموقع الجغرافي. يرجى إدخال الموقع يدوياً.",
+      buttons: [{ id: "ok", type: "ok" }],
+    });
+  }
+});
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  errorMessage.classList.add("hidden");
+  successMessage.classList.add("hidden");
+
+  const tripType = tripTypeSelect.value;
+  const fromLocation = fromLocationInput.value.trim();
+  const toLocation = toLocationInput.value.trim();
+  const details = document.getElementById("details").value.trim();
+  const fromLat = fromLatInput.value;
+  const fromLon = fromLonInput.value;
+
+  if (!fromLocation || (!toLocation && !tripType.startsWith("srv_"))) {
+    errorMessage.textContent = "الرجاء تعبئة جميع الحقول المطلوبة.";
+    errorMessage.classList.remove("hidden");
+    return;
+  }
+
+  const data = {
+    action: "request_trip",
+    trip_type: tripType,
+    from_location_text: fromLocation,
+    from_latitude: fromLat || null,
+    from_longitude: fromLon || null,
+    to_location_text: toLocation,
+    details: details,
+  };
+
+  tg.sendData(JSON.stringify(data));
+  tg.MainButton.hide();
+  successMessage.textContent = "✅ تم إرسال طلبك بنجاح! يرجى العودة للبوت.";
+  successMessage.classList.remove("hidden");
+  form.reset();
+  fromLocationInput.readOnly = false; // Reset readOnly state
+});
+
+document.getElementById("cancelBtn").addEventListener("click", function () {
+  tg.close();
+});
+
+// Handle MainButton visibility and text
+tg.onEvent("mainButtonClicked", function () {
+  form.dispatchEvent(new Event("submit"));
+});
+
+function updateMainButton() {
+  if (
+    fromLocationInput.value.trim() &&
+    (toLocationInput.value.trim() || tripTypeSelect.value.startsWith("srv_"))
+  ) {
+    tg.MainButton.setText("✅ تأكيد الطلب");
+    tg.MainButton.show();
+    tg.MainButton.enable();
+  } else {
+    tg.MainButton.hide();
+  }
+}
+
+fromLocationInput.addEventListener("input", updateMainButton);
+toLocationInput.addEventListener("input", updateMainButton);
+tripTypeSelect.addEventListener("change", updateMainButton);
+
+// Initial check for MainButton
+updateMainButton();
